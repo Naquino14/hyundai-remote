@@ -1,0 +1,1 @@
+This project is intended to be a remote starter for my car, but also a sandbox in the meantime.
