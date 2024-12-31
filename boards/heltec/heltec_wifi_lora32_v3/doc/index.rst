@@ -4,7 +4,7 @@ Overview
 ********
 
 Heltec WiFi LoRa 32 V3 is a classic IoT dev-board designed & produced by Heltec Automation(TM), it's a highly
-integrated product based on ESP32 + SX1262, it has Wi-Fi, BLE, LoRa functions, also Li-Po battery management
+integrated product based on ESP32-S3 + SX1262, it has Wi-Fi, BLE, LoRa functions, also Li-Po battery management
 system, 0.96" OLED are also included. [1]_
 
 The features include the following:
@@ -73,19 +73,19 @@ Sysbuild
 ========
 
 The sysbuild makes possible to build and flash all necessary images needed to
-bootstrap the board with the ESP32 SoC.
+bootstrap the board with the ESP32-S3 SoC.
 
 To build the sample application using sysbuild use the command:
 
 .. zephyr-app-commands::
    :tool: west
    :zephyr-app: samples/hello_world
-   :board: heltec_wifi_lora32_v2
+   :board: heltec_wifi_lora32_v3
    :goals: build
    :west-args: --sysbuild
    :compact:
 
-By default, the ESP32 sysbuild creates bootloader (MCUboot) and application
+By default, the ESP32-S3 sysbuild creates bootloader (MCUboot) and application
 images. But it can be configured to create other kind of images.
 
 Build directory structure created by sysbuild is different from traditional
@@ -158,7 +158,7 @@ message in the monitor:
 Debugging
 *********
 
-As with much custom hardware, the ESP32 modules require patches to
+As with much custom hardware, the ESP32-S3 modules require patches to
 OpenOCD that are not upstreamed yet. Espressif maintains their own fork of
 the project. The custom OpenOCD can be obtained at `OpenOCD ESP32`_.
 
@@ -193,7 +193,7 @@ connected via I2C. It can therefore be used by enabling the
 
 .. zephyr-app-commands::
    :zephyr-app: samples/subsys/display/lvgl
-   :board: heltec_wifi_lora32_v2/esp32/procpu
+   :board: heltec_wifi_lora32_v3/esp32s3/procpu
    :shield: ssd1306_128x64
    :goals: flash
 
