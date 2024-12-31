@@ -10,7 +10,7 @@
 
 / {
 	model = "Heltec Wi-Fi Lora32 V3 APPCPU";
-	compatible = "espressif,esp32";
+	compatible = "espressif,esp32s3";
 
 	chosen {
 		zephyr,sram = &sram1;
