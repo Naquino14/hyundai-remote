@@ -100,9 +100,7 @@
         reg = <0>;
         reset-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
         busy-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
-        dio-gpios =
-            /* SX1262 DIO1 -> GPIO14 */
-            <&gpio0 14 GPIO_ACTIVE_HIGH>;
+        dio1-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; /* SX1262 DIO1 */
         spi-max-frequency = <1000000>;
         power-amplifier-output = "pa-boost";
     };
