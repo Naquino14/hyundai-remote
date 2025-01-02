@@ -102,7 +102,6 @@
         busy-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
         dio1-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; /* SX1262 DIO1 */
         spi-max-frequency = <1000000>;
-        power-amplifier-output = "pa-boost";
     };
 };
 
