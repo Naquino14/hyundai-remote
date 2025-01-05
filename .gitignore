@@ -56,3 +56,7 @@ build/
 .vscode
 
 sdkconfig.*
+
+# Zephyr files
+.west
+deps/
