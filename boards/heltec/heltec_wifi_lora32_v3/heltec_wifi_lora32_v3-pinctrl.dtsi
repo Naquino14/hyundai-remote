@@ -12,11 +12,11 @@
 
 	uart0_default: uart0_default {
 		group1 {
-			pinmux = <UART0_TX_GPIO44>;
+			pinmux = <UART0_TX_GPIO43>;
 			output-high;
 		};
 		group2 {
-			pinmux = <UART0_RX_GPIO43>;
+			pinmux = <UART0_RX_GPIO44>;
 			bias-pull-up;
 		};
 	};
