@@ -10,4 +10,10 @@ supported:
   - watchdog
   - uart
   - nvs
+  - pwm
+  - lora
+  - can
+  - spi
+  - entropy
+  - counter
 vendor: espressif
