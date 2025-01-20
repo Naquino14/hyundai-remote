@@ -5,4 +5,7 @@ set(ESPTOOL "/home/naquino14/zephyrproject/.venv/bin/esptool.py")
 
 project(hyundai-remote)
 
-target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE 
+    src/main.c
+    src/built-in-test.c    
+)
