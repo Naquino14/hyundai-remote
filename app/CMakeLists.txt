@@ -7,5 +7,6 @@ project(hyundai-remote)
 
 target_sources(app PRIVATE 
     src/main.c
-    src/built-in-test.c    
+    src/built-in-test.c
+    src/roles.c
 )

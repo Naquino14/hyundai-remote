@@ -2,9 +2,10 @@
 #define ROLES_H
 
 #include <zephyr/linker/linker-defs.h>
+#include <stdbool.h>
 
-const char* FOB_STR = "FOB-COMMANDER-XMTR";
-const char* TRC_STR = "TRACK-CONTROL-XPDR";
+extern const char* FOB_STR;
+extern const char* TRC_STR;
 
 typedef enum {
    ROLE_FOB,
@@ -36,5 +37,10 @@ inline const char* role_tostring() {
          return "UNKNOWN";
    }
 }
+
+/**
+ * Automatically get device role and configure GPIOs
+ */
+bool role_config();
 
 #endif // ROLES_H

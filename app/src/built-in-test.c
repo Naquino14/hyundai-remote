@@ -22,17 +22,6 @@ void run_bit() {
 
     static bool state = true;
 
-    // configure gpio
-    if (!gpio_is_ready_dt(&led)) {
-        printk("LED is not ready, dying...\n");
-        return;
-    }
-
-    if (gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE) < 0) {
-        printk("Cant configure LED, dying...\n");
-        return;
-    }
-
     for (;;) {
         int ret = gpio_pin_toggle_dt(&led);
         int read_state = gpio_pin_get_dt(&led);
