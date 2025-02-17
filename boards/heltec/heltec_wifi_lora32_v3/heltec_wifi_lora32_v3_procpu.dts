@@ -59,6 +59,7 @@
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
 		zephyr,bt-hci = &esp32_bt_hci;
+		zephyr,display = &ssd1306;
 	};
 };
 
@@ -88,6 +89,21 @@
 	// scl-gpios = <&gpio0 18 GPIO_OPEN_DRAIN>;
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
+
+	ssd1306: ssd1306@3c { 
+		compatible = "solomon,ssd1306fb";
+		status = "okay";
+        reg = <0x3C>;
+        label = "SSD1306";
+        width = <128>;
+        height = <64>;
+        segment-offset = <0>;  // Default
+        page-offset = <0>;
+		display-offset = <0>;
+		multiplex-ratio = <63>;
+		prechargep = <0x22>;
+        reset-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
+    };
 };
 
 &spi3 {  // Note: spi3 may be wrong here
@@ -116,4 +132,4 @@
 };
 
 // /* Required by the ssd1306_128x64 shield which enables the OLED display */
-arduino_i2c: &i2c0 {};
+// arduino_i2c: &i2c0 {};

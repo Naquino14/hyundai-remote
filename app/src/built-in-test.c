@@ -2,6 +2,7 @@
 
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
+#include <zephyr/drivers/display.h>
 #include <zephyr/linker/linker-defs.h>
 
 #include "roles.h"
@@ -19,6 +20,9 @@ const struct device* i2c_dev = DEVICE_DT_GET(I2C0_NODE);
 // get oled reset node from dt
 #define OLEDRESET_NODE DT_ALIAS(oledreset)
 const struct gpio_dt_spec oledreset = GPIO_DT_SPEC_GET(OLEDRESET_NODE, gpios);
+
+// get oled node
+const struct device* display = DEVICE_DT_GET(DT_NODELABEL(ssd1306));
 
 #define OLED_ADDY 0x3c
 
@@ -44,29 +48,19 @@ void run_bit() {
     } else
         printk("OLED reset pin ready\n");
 
-    printk("Configuring reset pin...\n");
-    gpio_pin_configure_dt(&oledreset, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
-    k_msleep(100);
+    // printk("Configuring reset pin...\n");
+    // gpio_pin_configure_dt(&oledreset, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    // k_msleep(100);
 
-    printk("Resetting oled...\n");
-    // reset oled by holding reset low for 100 ms
-    gpio_pin_set_dt(&oledreset, 1);
-    k_msleep(100);
-    gpio_pin_set_dt(&oledreset, 0);
-    k_msleep(100);
+    // printk("Resetting oled...\n");
+    // // reset oled by holding reset low for 100 ms
+    // gpio_pin_set_dt(&oledreset, 1);
+    // k_msleep(100);
+    // gpio_pin_set_dt(&oledreset, 0);
+    // k_msleep(100);
 
-    uint8_t init_cmds[] = {
-        0xAE,  // Display OFF
-        0xA5,  // Display ALL pixels ON
-        0xAF   // Display ON
-    };
-
-    int ret = i2c_write(i2c_dev, init_cmds, sizeof(init_cmds), OLED_ADDY);
-    if (ret != 0) {
-        printk("Failed to send initialization commands: %d\n", ret);
-        return;
-    } else
-        printk("Buffer sent to 0x3c: 0xae, 0xa5, 0xaf\n");
+    // Turn on the display
+    display_blanking_off(display);
 
     printk("SSD1306 initialized!\n");
 
