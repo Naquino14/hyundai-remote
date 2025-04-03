@@ -1,5 +1,5 @@
 config DEVICE_ROLE
-int "1: FOB, 2: TRC"
+int "DEVICE_ROLE | 1: FOB, 2: TRC"
 range 1 2
 default 1 if CONFIG_BOARD_HELTEC_WIFI_LORA32_v3
 default 2 if CONFIG_BOARD_HELTEC_HTIT_TRACKER
