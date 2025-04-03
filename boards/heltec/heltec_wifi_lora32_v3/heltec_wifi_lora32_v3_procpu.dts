@@ -22,6 +22,7 @@
 		sw0 = &button0;
 		watchdog0 = &wdt0;
 		lora0 = &lora0;
+		oledrst = &oledrst;
 	};
 
 	leds {
@@ -87,7 +88,7 @@
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 
-	ssd1306: ssd1306@0x3c {
+	ssd1306: ssd1306@3c {
 		compatible = "solomon,ssd1306fb";
 		reg = <0x3c>;
 		label = "SSD1306";

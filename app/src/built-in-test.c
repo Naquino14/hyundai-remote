@@ -10,7 +10,15 @@ static const char* HASHES = "################################";
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
+#define OLEDRST_NODE DT_ALIAS(oledrst)
+static const struct gpio_dt_spec oledrst = GPIO_DT_SPEC_GET(OLEDRST_NODE, gpios);
+
 void run_bit() {
+    // reset oled
+    gpio_pin_set_dt(&oledrst, GPIO_OUTPUT_HIGH);
+    k_msleep(100);
+    gpio_pin_set_dt(&oledrst, GPIO_OUTPUT_LOW);
+
     printk("Waking up...\n");
     k_msleep(2 * 1000);
 
