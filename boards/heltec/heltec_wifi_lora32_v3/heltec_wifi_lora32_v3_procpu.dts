@@ -88,7 +88,7 @@
 	pinctrl-names = "default";
 
 	ssd1306: ssd1306@0x3c {
-		compatible = "solomon,ssd1306";
+		compatible = "solomon,ssd1306fb";
 		reg = <0x3c>;
 		label = "SSD1306";
 		width = <128>;
