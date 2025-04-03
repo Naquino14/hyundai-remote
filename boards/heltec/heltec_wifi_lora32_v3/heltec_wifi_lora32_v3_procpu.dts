@@ -83,8 +83,6 @@
 &i2c0 {
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_FAST>;
-	sda-gpios = <&gpio0 17 GPIO_OPEN_DRAIN>;
-	scl-gpios = <&gpio0 18 GPIO_OPEN_DRAIN>;
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
 };

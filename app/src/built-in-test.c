@@ -12,7 +12,7 @@ static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
 void run_bit() {
     printk("Waking up...\n");
-    k_msleep(4 * 1000);
+    k_msleep(2 * 1000);
 
     printk("%s\n", HASHES);
     printk("#      HYUNDAI-REMOTE BIT      #\n");
