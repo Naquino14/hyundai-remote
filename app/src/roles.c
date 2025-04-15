@@ -1,5 +1,6 @@
 #include "roles.h"
 
+#include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
@@ -26,7 +27,21 @@ static bool init_common() {
    return true;
 }
 
+#define DISPLAY_NODE DT_NODELABEL(ssd1306)
+static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+
 static bool init_fob() {
+   // init cfb
+   if (!device_is_ready(display)) {
+      printk("Display device not ready\n");
+      return false;
+  }
+
+  int ret = cfb_framebuffer_init(display);
+  if (ret != 0) {
+      printk("Display init failed: %d\n", ret);
+      return false;
+  }
    return true;
 }
 
