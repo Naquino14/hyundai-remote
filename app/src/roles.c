@@ -2,6 +2,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/display/cfb.h>
 
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
 const char* TRC_STR = "TRACK-CONTROL-XPDR";
