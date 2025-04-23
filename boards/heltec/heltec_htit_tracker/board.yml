@@ -1,0 +1,6 @@
+board:
+  name: heltec_htit_tracker
+  full_name: Heltec WiFi HTIT Tracker
+  vendor: heltec
+  socs:
+    - name: esp32s3
