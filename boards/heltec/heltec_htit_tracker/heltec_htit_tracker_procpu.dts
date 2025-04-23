@@ -1,0 +1,133 @@
+/*
+ * Copyright (c) 2025 Nate Aquino
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/dts-v1/;
+
+#include <espressif/esp32s3/esp32s3_fn8.dtsi>
+#include "heltec_wifi_lora32_v3-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/lora/sx126x.h>
+#include <espressif/partitions_0x0_amp.dtsi>
+
+/ {
+	model = "Heltec HTIT Tracker PROCPU";
+	compatible = "espressif,esp32s3";
+
+	aliases {
+		uart-0 = &uart0;
+		uart-1 = &uart1;
+		led0 = &led0;
+		sw0 = &button0;
+		watchdog0 = &wdt0;
+		lora0 = &lora0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led {
+			gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>; 
+			label = "White LED";
+		};
+
+		vext: vext { 
+			gpios = <&gpio0 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "External VCC";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = <&gpio0 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "USER Button";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+	};
+
+	chosen {
+		zephyr,sram = &sram1;
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,bt-hci = &esp32_bt_hci;
+	};
+};
+
+&flash0 {
+	reg = <0x0 DT_SIZE_M(4)>;
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-names = "default";
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <9600>; // default for UC6580
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-names = "default";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&trng0 {
+	status = "okay";
+};
+
+&spi3 {  // Note: spi3 may be wrong here
+    #address-cells = <1>;
+    #size-cells = <0>;
+    status = "okay";
+    pinctrl-0 = <&spim3_default>;
+    pinctrl-names = "default";
+    cs-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+    lora0: lora@0 {
+        compatible = "semtech,sx1262";
+        reg = <0>;
+        reset-gpios = <&gpio0 12 (GPIO_OPEN_DRAIN | GPIO_ACTIVE_LOW)>;
+        busy-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+        dio1-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; /* SX1262 DIO1 */
+		dio2-tx-enable;
+		dio3-tcxo-voltage = <SX126X_DIO3_TCXO_1V8>;
+		tcxo-power-startup-delay-ms = <5>;
+        spi-max-frequency = <4000000>;
+    };
+};
+
+&spi2 {
+	status = "okay";
+	pinctrl-0 = <&spim2_default>;
+	pinctrl-names = "default";
+	cs-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>; // gpio0 38 = gpio1 6
+
+	st7735: st7735@0 {
+		compatible = "sitronix,st7735r";
+		reg = <0>;
+		spi-max-frequency = <10000000>; // lower if needed
+		reset-gpios = <&gpio1 7 GPIO_ACTIVE_LOW>; // gpio0 39 = gpio1 7
+		dc-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>; // gpio0 40 = gpio1 8
+		backlight-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>; // if not working, try GPIO_ACTIVE_HIGH
+		width = <160>;
+		height = <80>;
+		x-offset = <0>;
+		y-offset = <0>;
+		gamctrp1 = <0>; // 0 = normal, 1 = inverted
+		gamctrn1 = <0>;
+	};
+};
+
+
+&esp32_bt_hci {
+	status = "okay";
+};
+
+/* Required by the ssd1306_128x64 shield which enables the OLED display */
+arduino_i2c: &i2c0 {};
