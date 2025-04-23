@@ -1,0 +1,19 @@
+identifier: heltec_htit_tracker/esp32s3/procpu
+name: HELTEC HTIT Tracker Board PROCPU
+type: mcu
+arch: xtensa
+toolchain:
+  - zephyr
+supported:
+  - gpio
+  - i2c
+  - watchdog
+  - uart
+  - nvs
+  - pwm
+  - lora
+  - can
+  - spi
+  - entropy
+  - counter
+vendor: espressif
