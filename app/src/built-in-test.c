@@ -11,8 +11,14 @@ static const char* HASHES = "################################";
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
+#if CONFIG_DEVICE_ROLE == 1
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+#elif CONFIG_DEVICE_ROLE == 2
+#define DISPLAY_NODE NULL
+static const struct device *display = NULL;
+#endif
+
 
 static int bit_display_clear() {
     int ret = cfb_framebuffer_clear(display, true);
@@ -49,13 +55,11 @@ void run_bit() {
     // cfb driver
     if (!device_is_ready(display)) {
         printk("Display device not ready\n");
-        return;
     }
 
     int ret = cfb_framebuffer_init(display);
     if (ret != 0) {
         printk("Display init failed: %d\n", ret);
-        return;
     }
 
     char* startup_text = "Waking up...\n";
