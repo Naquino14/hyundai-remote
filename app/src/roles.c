@@ -1,6 +1,7 @@
 #include "roles.h"
 
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/usb/usbd.h>
 
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
 const char* TRC_STR = "TRACK-CONTROL-XPDR";
@@ -31,6 +32,15 @@ static bool init_fob() {
 }
 
 static bool init_trc() {
+   // // init usb
+   // if (!usbd_enable(NULL))
+   // {
+   //    printk("Failed to enable USB device.");
+   //    return false;
+   // }
+
+   // // init console
+
    return true;
 }
 
