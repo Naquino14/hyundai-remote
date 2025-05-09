@@ -1,7 +1,8 @@
 #include "roles.h"
 
+#include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/usb/usbd.h>
+#include <zephyr/display/cfb.h>
 
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
 const char* TRC_STR = "TRACK-CONTROL-XPDR";
@@ -27,20 +28,31 @@ static bool init_common() {
    return true;
 }
 
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
+#define DISPLAY_NODE DT_NODELABEL(ssd1306)
+static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+
+#elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+#define DISPLAY_NODE NULL
+static const struct device *display = NULL;
+#endif
+
 static bool init_fob() {
+   // init cfb
+   if (!device_is_ready(display)) {
+      printk("Display device not ready\n");
+      return false;
+  }
+
+  int ret = cfb_framebuffer_init(display);
+  if (ret != 0) {
+      printk("Display init failed: %d\n", ret);
+      return false;
+  }
    return true;
 }
 
 static bool init_trc() {
-   // // init usb
-   // if (!usbd_enable(NULL))
-   // {
-   //    printk("Failed to enable USB device.");
-   //    return false;
-   // }
-
-   // // init console
-
    return true;
 }
 

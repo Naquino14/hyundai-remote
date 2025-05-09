@@ -22,6 +22,7 @@
 		sw0 = &button0;
 		watchdog0 = &wdt0;
 		lora0 = &lora0;
+		oledrst = &oledrst;
 	};
 
 	leds {
@@ -32,12 +33,12 @@
 		};
 
 		vext: vext { 
-			gpios = <&gpio1 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; // GPIO0 36 == GPIO1 4
+			gpios = <&gpio1 4 GPIO_ACTIVE_LOW>; // GPIO0 36 == GPIO1 4
 			label = "External VCC";
 		};
 
 		oledrst: oledrst {
-			gpios = <&gpio0 21 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>;
+			gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
 			label = "OLED Reset";
 		};
 	};
@@ -58,6 +59,7 @@
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
 		zephyr,bt-hci = &esp32_bt_hci;
+		zephyr,display = &ssd1306;
 	};
 };
 
@@ -83,10 +85,24 @@
 &i2c0 {
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_FAST>;
-	sda-gpios = <&gpio0 17 GPIO_OPEN_DRAIN>;
-	scl-gpios = <&gpio0 18 GPIO_OPEN_DRAIN>;
 	pinctrl-0 = <&i2c0_default>;
 	pinctrl-names = "default";
+
+	ssd1306: ssd1306@3c {
+		compatible = "solomon,ssd1306fb";
+		reg = <0x3c>;
+		label = "SSD1306";
+		width = <128>;
+		height = <64>;
+		segment-offset = <0>;
+		page-offset = <0>;
+		display-offset = <0>;
+		com-invdir;
+		segment-remap;
+		multiplex-ratio = <63>;
+		prechargep = <0x22>;
+		reset-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
+	};
 };
 
 &spi3 {  // Note: spi3 may be wrong here
@@ -113,6 +129,3 @@
 &esp32_bt_hci {
 	status = "okay";
 };
-
-/* Required by the ssd1306_128x64 shield which enables the OLED display */
-arduino_i2c: &i2c0 {};
