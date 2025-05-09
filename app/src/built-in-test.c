@@ -14,12 +14,11 @@ static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 #if CONFIG_DEVICE_ROLE == 1
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
-
 #elif CONFIG_DEVICE_ROLE == 2
 #define DISPLAY_NODE NULL
-// #define DISPLAY_NODE DT_NODELABEL(st7735) // display for TRC WIP
-static const struct device *display = NULL; // DEVICE_DT_GET(DISPLAY_NODE);
+static const struct device *display = NULL;
 #endif
+
 
 static int bit_display_clear() {
     int ret = cfb_framebuffer_clear(display, true);
@@ -53,20 +52,19 @@ static int bit_display_flush() {
 }
 
 void run_bit() {
-    // cfb driver
     const char* startup_text = "Waking up...\n";
     
-    if (display)
-    {
+    if (display) {
+        // cfb driver
         if (!device_is_ready(display)) {
             printk("Display device not ready\n");
         }
-    
+
         int ret = cfb_framebuffer_init(display);
         if (ret != 0) {
             printk("Display init failed: %d\n", ret);
         }
-    
+
         bit_display_text(startup_text);
         bit_display_flush();
     }
@@ -82,8 +80,7 @@ void run_bit() {
     printk("# Role: %-22s #\n", role_tostring());
     printk("%s\n", HASHES);
 
-    if (display)
-    {
+    if (display) {
         bit_display_clear();
         bit_display_textxy(*role_tostring() == 'F' ? "ROLE: FOB" : "ROLE: TRC", 0, 0);
         bit_display_flush();

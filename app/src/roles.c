@@ -11,17 +11,14 @@ const char* TRC_STR = "TRACK-CONTROL-XPDR";
 static const char* ERROR_NOT_READY = "%s is not ready.\n";
 static const char* ERROR_CONFIGURE = "Cannot configure %s.\n";
 
-#if CONFIG_DEVICE_ROLE == 1
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
-#elif CONFIG_DEVICE_ROLE == 2
-// #define DISPLAY_NODE DT_NODELABEL(st7735) // display for TRC WIP
-static const struct device *display = NULL; // DEVICE_DT_GET(DISPLAY_NODE);
-#else
-#error "roles.c: Unknown device role"
+#elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+#define DISPLAY_NODE NULL
+static const struct device *display = NULL;
 #endif
-
 
 static bool init_common() {
    // init led
