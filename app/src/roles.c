@@ -13,12 +13,12 @@ static const char* ERROR_CONFIGURE = "Cannot configure %s.\n";
 
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
-static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
-#define DISPLAY_NODE NULL
-static const struct device *display = NULL;
+#define DISPLAY_NODE DT_NODELABEL(st7735)
 #endif
+
+static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
 static bool init_common() {
    // init led
@@ -42,13 +42,13 @@ static bool init_fob() {
    if (!device_is_ready(display)) {
       printk("Display device not ready\n");
       return false;
-  }
+   }
 
-  int ret = cfb_framebuffer_init(display);
-  if (ret != 0) {
+   int ret = cfb_framebuffer_init(display);
+   if (ret != 0) {
       printk("Display init failed: %d\n", ret);
       return false;
-  }
+   }
    return true;
 }
 

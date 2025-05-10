@@ -11,12 +11,13 @@ static const char* HASHES = "################################";
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
-#if CONFIG_DEVICE_ROLE == 1
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
-#elif CONFIG_DEVICE_ROLE == 2
-#define DISPLAY_NODE NULL
-static const struct device *display = NULL;
+
+#elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+#define DISPLAY_NODE DT_NODELABEL(st7735)
+static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 #endif
 
 
@@ -91,8 +92,8 @@ void run_bit() {
     for (;;) {
         int ret = gpio_pin_toggle_dt(&led);
         int read_state = gpio_pin_get_dt(&led);
-        printk("Hello World! %s\tState: %s\tRead State: %s\t", CONFIG_BOARD, state ? "ON " : "OFF", read_state == GPIO_OUTPUT_HIGH ? "HI" : "LO");
-        printk("%s%d\n\n", ret == 0 ? "    OK: " : "NOT OK: ", ret);
+        // printk("Hello World! %s\tState: %s\tRead State: %s\t", CONFIG_BOARD, state ? "ON " : "OFF", read_state == GPIO_OUTPUT_HIGH ? "HI" : "LO");
+        // printk("%s%d\n\n", ret == 0 ? "    OK: " : "NOT OK: ", ret);
 
         state = !state;
 
