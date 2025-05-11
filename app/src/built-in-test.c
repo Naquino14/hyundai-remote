@@ -15,9 +15,15 @@ static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
+#define GPS_NODE NULL
+static const struct device *gps = NULL;
+
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
 #define DISPLAY_NODE DT_NODELABEL(st7735)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+
+#define GPS_NODE DT_NODELABEL(gnss)
+static const struct device *gps = DEVICE_DT_GET(GPS_NODE);
 #endif
 
 

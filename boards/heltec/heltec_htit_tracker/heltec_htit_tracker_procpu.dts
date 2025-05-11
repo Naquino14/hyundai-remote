@@ -23,6 +23,7 @@
 		watchdog0 = &wdt0;
 		lora0 = &lora0;
 		st7735 = &st7735;
+		gnss = &gnss;
 	};
 
 	leds {
@@ -89,7 +90,7 @@
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
 		zephyr,bt-hci = &esp32_bt_hci;
-		zephyr,display = &st7735; // wip
+		zephyr,display = &st7735;
 	};
 };
 
@@ -109,6 +110,17 @@
 	current-speed = <9600>; // default for UC6580
 	pinctrl-0 = <&uart1_default>;
 	pinctrl-names = "default";
+};
+
+&uart2 {
+	status = "okay";
+	pinctrl-0 = <&uart2_default>;
+	pinctrl-names = "default";
+	current-speed = <9600>;
+
+	gnss: gnss-nmea-generic {
+		compatible = "gnss-nmea-generic";
+	};
 };
 
 &gpio0 {
