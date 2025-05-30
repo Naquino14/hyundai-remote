@@ -23,24 +23,12 @@
 
 	uart1_default: uart1_default {
 		group1 {
-			pinmux = <UART1_TX_GPIO33>;
+			pinmux = <UART1_TX_GPIO34>;
 			output-high;
 		};
 
 		group2 {
-			pinmux = <UART1_RX_GPIO34>;
-			bias-pull-up;
-		};
-	};
-
-	uart2_default: uart2_default {
-		group1 {
-			pinmux = <UART2_TX_GPIO33>;
-			output-high;
-		};
-
-		group2 {
-			pinmux = <UART2_RX_GPIO34>;
+			pinmux = <UART1_RX_GPIO33>;
 			bias-pull-up;
 		};
 	};

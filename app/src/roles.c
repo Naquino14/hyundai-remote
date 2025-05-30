@@ -7,9 +7,8 @@
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
 const char* TRC_STR = "TRACK-CONTROL-XPDR";
 
-
-static const char* ERROR_NOT_READY = "%s is not ready.\n";
-static const char* ERROR_CONFIGURE = "Cannot configure %s.\n";
+// static const char* ERROR_NOT_READY = "%s is not ready.\n";
+// static const char* ERROR_CONFIGURE = "Cannot configure %s.\n";
 
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
@@ -21,19 +20,6 @@ static const char* ERROR_CONFIGURE = "Cannot configure %s.\n";
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
 static bool init_common() {
-   // init led
-   static struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
-
-   if (!gpio_is_ready_dt(&led)) {
-      printk(ERROR_NOT_READY, "led0");
-      return false;
-   }
-
-   if (gpio_pin_configure_dt(&led, GPIO_OUTPUT) < 0) {
-      printk(ERROR_CONFIGURE, "led0");
-      return false;
-   }
-
    return true;
 }
 
@@ -53,6 +39,17 @@ static bool init_fob() {
 }
 
 static bool init_trc() {
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+   // turn on vext
+   const struct device *gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+   const struct gpio_dt_spec vext = GPIO_DT_SPEC_GET(DT_NODELABEL(vext), gpios);
+
+   int ret = gpio_pin_set_dt(&vext, 1);
+   if (ret != 0) {
+      printk("VEXT pin set failed: %d\n", ret);
+      return false;
+   }
+#endif
    return true;
 }
 
