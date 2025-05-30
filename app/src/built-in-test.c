@@ -14,6 +14,10 @@ static const char* HASHES = "################################";
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
+#define SW0_NODE DT_ALIAS(sw0)
+static const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
+static struct gpio_callback sw0_cb_data;
+
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
@@ -57,6 +61,12 @@ static int bit_display_flush() {
     return 0;
 }
 
+static bool sw0_ok = false;
+static void button_pressed(const struct device* dev, struct gpio_callback *cb, uint32_t pins) {
+    LOG_INF("SW0 OK.");
+    sw0_ok = true;
+}
+
 void run_bit() {
     const char* startup_text = "Waking up...\n";
     
@@ -76,6 +86,13 @@ void run_bit() {
         bit_display_flush();
     }
 
+    if (sw0.port) {
+        gpio_init_callback(&sw0_cb_data, button_pressed, BIT(sw0.pin));
+        int ret = gpio_add_callback(sw0.port, &sw0_cb_data);
+        if (ret < 0) 
+            printk("Failed to register SW0 callback: %d\n", ret);
+    }
+
 
     printk("%s\n", startup_text);
 
@@ -89,7 +106,7 @@ void run_bit() {
 
     if (display) {
         bit_display_clear();
-        bit_display_textxy(*role_tostring() == 'F' ? "ROLE: FOB" : "ROLE: TRC", 0, 0);
+        bit_display_text(*role_tostring() == 'F' ? "ROLE: FOB   PRESS SW0" : "ROLE: TRC   PRESS SW0");
         bit_display_flush();
     }
 
@@ -102,6 +119,12 @@ void run_bit() {
         // printk("%s%d\n\n", ret == 0 ? "    OK: " : "NOT OK: ", ret);
 
         // state = !state;
+        if (sw0_ok && sw0.port) {
+            sw0_ok = false;
+            bit_display_clear();
+            bit_display_text("SW0 PRESSED");
+            bit_display_flush();
+        }
 
         k_msleep(500);
     }

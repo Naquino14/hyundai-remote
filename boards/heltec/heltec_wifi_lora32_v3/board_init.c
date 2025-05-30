@@ -13,9 +13,10 @@
 #define OLED_RST DT_GPIO_PIN(DT_NODELABEL(oledrst), gpios)
 #define LED DT_GPIO_PIN(DT_NODELABEL(led0), gpios)
 
-LOG_MODULE_REGISTER(board_init, LOG_LEVEL_INF);
+#define SW0_NODE DT_ALIAS(sw0)
+static const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
 
-#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(board_init, LOG_LEVEL_INF);
 
 static int board_heltec_wifi_lora32_v3_init(void) {
     const struct device *gpio;
@@ -33,6 +34,26 @@ static int board_heltec_wifi_lora32_v3_init(void) {
     gpio_pin_configure(gpio1, LED, GPIO_OUTPUT);
 
     gpio_pin_configure(gpio, OLED_RST, GPIO_OUTPUT);
+
+        // SW0 setup
+    do {
+        if (!gpio_is_ready_dt(&sw0)) {
+            LOG_WRN("SW0 GPIO device not ready");
+            break;
+        }
+
+        int ret = gpio_pin_configure_dt(&sw0, GPIO_INPUT);
+        if (ret < 0) {
+            LOG_WRN("Failed to configure SW0: %d", ret);
+            break;
+        }
+
+        ret = gpio_pin_interrupt_configure_dt(&sw0, GPIO_INT_EDGE_TO_ACTIVE);
+        if (ret < 0) {
+            LOG_WRN("Failed to configure SW0 interrupt: %d", ret);
+            break;
+        }
+    } while (false);
 
     LOG_INF("Board init complete.");
     return 0;
