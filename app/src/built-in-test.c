@@ -7,6 +7,7 @@
 #include <zephyr/display/cfb.h>
 #include <zephyr/drivers/gnss.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/drivers/lora.h>
 
 static const char* HASHES = "################################";
 
@@ -22,10 +23,17 @@ static struct gpio_callback sw0_cb_data;
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 
+#define LORA_NODE DT_NODELABEL(lora0)
+static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
+#define LORA_MAX_POW_DBM 14
+
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+#define LORA_NODE NULL // NYI
+static const struct device *lora = NULL; // NYI
+#define LORA_MAX_POW_DBM 0 // NYI
+
 #define DISPLAY_NODE DT_NODELABEL(st7735)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
-
 #endif
 
 LOG_MODULE_REGISTER(bit, LOG_LEVEL_DBG);
@@ -69,6 +77,8 @@ static void button_pressed(const struct device* dev, struct gpio_callback *cb, u
 
 void run_bit() {
     const char* startup_text = "Waking up...\n";
+
+    int ret;
     
     if (display) {
         // cfb driver
@@ -76,7 +86,7 @@ void run_bit() {
             printk("Display device not ready\n");
         }
 
-        int ret = cfb_framebuffer_init(display);
+        ret = cfb_framebuffer_init(display);
         if (ret != 0) {
             printk("Display init failed: %d\n", ret);
         }
@@ -88,11 +98,35 @@ void run_bit() {
 
     if (sw0.port) {
         gpio_init_callback(&sw0_cb_data, button_pressed, BIT(sw0.pin));
-        int ret = gpio_add_callback(sw0.port, &sw0_cb_data);
+        ret = gpio_add_callback(sw0.port, &sw0_cb_data);
         if (ret < 0) 
             printk("Failed to register SW0 callback: %d\n", ret);
     }
 
+    struct lora_modem_config cfg = {
+        .frequency = MHZ(915),
+        .bandwidth = BW_125_KHZ,
+        .datarate = SF_10,
+        .preamble_len = 8,
+        .coding_rate = CR_4_5,
+        .iq_inverted = false,
+        .public_network = false,
+        .tx_power = LORA_MAX_POW_DBM, // dBm
+        .tx = true
+    };
+
+    if (lora) 
+        do {
+            if (!device_is_ready(lora)) 
+            printk("Lora device is not ready\n");
+        
+            ret = lora_config(lora, &cfg);
+            if (ret < 0) {
+                printk("Lora config failed: %d\n", ret);
+                break;
+            }
+            printk("Lora OK\n");
+        } while (false);
 
     printk("%s\n", startup_text);
 
@@ -124,6 +158,29 @@ void run_bit() {
             bit_display_clear();
             bit_display_text("SW0 PRESSED");
             bit_display_flush();
+
+            if (lora && role_get() == ROLE_FOB) {
+                // send ping
+                char data[] = "PING";
+                printk("Pinging TRC...\n");
+                ret = lora_send(lora, data, sizeof(data));
+                if (ret < 0) {
+                    printk("Lora send failed: %d\n", ret);
+                }
+
+                // listen for pong
+                int16_t rssi;
+                uint8_t snr;
+                ret = lora_recv(lora, data, sizeof(data), K_MSEC(2000), &rssi, &snr);
+                if (ret < 0) {
+                    printk("Lora recv failed: %d\n", ret);
+                } else {
+                    printk("PONG received: %s, RSSI: %d, SNR: %d\n", data, rssi, snr);
+                    bit_display_clear();
+                    bit_display_text("PONG");
+                    bit_display_flush();
+                }
+            }
         }
 
         k_msleep(500);
