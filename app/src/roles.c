@@ -40,15 +40,6 @@ static bool init_fob() {
 
 static bool init_trc() {
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
-   // turn on vext
-   const struct device *gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
-   const struct gpio_dt_spec vext = GPIO_DT_SPEC_GET(DT_NODELABEL(vext), gpios);
-
-   int ret = gpio_pin_set_dt(&vext, 1);
-   if (ret != 0) {
-      printk("VEXT pin set failed: %d\n", ret);
-      return false;
-   }
 #endif
    return true;
 }

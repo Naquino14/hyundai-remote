@@ -23,7 +23,6 @@
 		watchdog0 = &wdt0;
 		lora0 = &lora0;
 		st7735 = &st7735;
-		gps = &gnss;
 		vext = &vext;
 	};
 
@@ -111,11 +110,6 @@
 	current-speed = <9600>; // default for UC6580
 	pinctrl-0 = <&uart1_default>;
 	pinctrl-names = "default";
-
-	gnss: gnss-nmea-generic {
-		status = "okay";
-		compatible = "gnss-nmea-generic";
-	};
 };
 
 &gpio0 {
