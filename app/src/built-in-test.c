@@ -28,12 +28,12 @@ static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
 #define LORA_MAX_POW_DBM 14
 
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
-#define LORA_NODE NULL // NYI
-static const struct device *lora = NULL; // NYI
-#define LORA_MAX_POW_DBM 0 // NYI
-
 #define DISPLAY_NODE DT_NODELABEL(st7735)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+
+#define LORA_MAX_POW_DBM 18 // up to 21±1
+#define LORA_NODE DT_ALIAS(lora0)
+static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
 #endif
 
 LOG_MODULE_REGISTER(bit, LOG_LEVEL_DBG);
@@ -75,6 +75,23 @@ static void button_pressed(const struct device* dev, struct gpio_callback *cb, u
     sw0_ok = true;
 }
 
+static struct lora_modem_config lora_cfg = {
+    .frequency = MHZ(915),
+    .bandwidth = BW_125_KHZ,
+    .datarate = SF_10,
+    .preamble_len = 8,
+    .coding_rate = CR_4_5,
+    .iq_inverted = false,
+    .public_network = false,
+    .tx_power = LORA_MAX_POW_DBM
+};
+
+static bool do_pong = false;
+static void lora_rx_cb(const struct device *dev, uint8_t* data, uint16_t len, int16_t rssi, int8_t snr, void* user_data) {
+    LOG_INF("Lora Packet Rx: %.*s, RSSI: %d, SNR: %d", len, data, rssi, snr);
+    do_pong = true;
+}
+
 void run_bit() {
     const char* startup_text = "Waking up...\n";
 
@@ -103,34 +120,28 @@ void run_bit() {
             printk("Failed to register SW0 callback: %d\n", ret);
     }
 
-    struct lora_modem_config cfg = {
-        .frequency = MHZ(915),
-        .bandwidth = BW_125_KHZ,
-        .datarate = SF_10,
-        .preamble_len = 8,
-        .coding_rate = CR_4_5,
-        .iq_inverted = false,
-        .public_network = false,
-        .tx_power = LORA_MAX_POW_DBM, // dBm
-        .tx = true
-    };
-
-    if (lora) 
-        do {
-            if (!device_is_ready(lora)) 
-            printk("Lora device is not ready\n");
-        
-            ret = lora_config(lora, &cfg);
-            if (ret < 0) {
-                printk("Lora config failed: %d\n", ret);
-                break;
-            }
-            printk("Lora OK\n");
-        } while (false);
-
     printk("%s\n", startup_text);
-
+    
     k_msleep(2 * 1000);
+
+    if (lora) do {
+                if (!device_is_ready(lora)) 
+                    printk("Lora device is not ready\n");
+        
+                lora_cfg.tx = (role_get() == ROLE_FOB);
+
+                ret = lora_config(lora, &lora_cfg);
+                if (ret < 0) {
+                    printk("Lora config failed: %d\n", ret);
+                    break;
+                }
+                printk("Lora OK\n");
+
+                if (lora && role_get() == ROLE_TRC) {
+                    printk("Registering Lora Rx callback...\n");
+                    lora_recv_async(lora, lora_rx_cb, NULL);
+                }
+            } while (false);
 
     printk("%s\n", HASHES);
     printk("#      HYUNDAI-REMOTE BIT      #\n");
@@ -171,7 +182,7 @@ void run_bit() {
                 // listen for pong
                 int16_t rssi;
                 uint8_t snr;
-                ret = lora_recv(lora, data, sizeof(data), K_MSEC(2000), &rssi, &snr);
+                ret = lora_recv(lora, data, sizeof(data), K_MSEC(10000), &rssi, &snr);
                 if (ret < 0) {
                     printk("Lora recv failed: %d\n", ret);
                 } else {
@@ -182,6 +193,32 @@ void run_bit() {
                 }
             }
         }
+
+        if (lora && do_pong) do {
+                printk("Pinged, ponging...\n");
+
+                lora_cfg.tx = true; 
+                int ret = lora_config(lora, &lora_cfg);
+                if (ret < 0) {
+                    printk("Lora rx cb: Set Lora cfg TX failed: %d\n", ret);
+                    break;
+                }
+
+                ret = lora_send(lora, "PONG", 4);
+                if (ret < 0) {
+                    printk("Lora send failed: %d\n", ret);
+                    break;
+                } else 
+                    printk("PONG sent successfully.\n");
+
+                k_msleep(100);
+                lora_cfg.tx = false; 
+                ret = lora_config(lora, &lora_cfg);
+                if (ret < 0) 
+                    printk("Lora rx cb: Set Lora cfg RX failed: %d\n", ret);
+                
+                do_pong = false;
+            } while (do_pong);
 
         k_msleep(500);
     }
