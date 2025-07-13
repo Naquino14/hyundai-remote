@@ -197,6 +197,9 @@ void run_bit() {
         if (lora && do_pong) do {
                 printk("Pinged, ponging...\n");
 
+                // stop rx
+                lora_recv_async(lora, NULL, NULL);
+                
                 lora_cfg.tx = true; 
                 int ret = lora_config(lora, &lora_cfg);
                 if (ret < 0) {
