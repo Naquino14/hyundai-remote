@@ -86,7 +86,7 @@ static struct lora_modem_config lora_cfg = {
     .tx_power = LORA_MAX_POW_DBM
 };
 
-static bool do_pong = false;
+static bool do_pong = false, listening = true;
 static void lora_rx_cb(const struct device *dev, uint8_t* data, uint16_t len, int16_t rssi, int8_t snr, void* user_data) {
     LOG_INF("Lora Packet Rx: %.*s, RSSI: %d, SNR: %d", len, data, rssi, snr);
     do_pong = true;
@@ -140,6 +140,7 @@ void run_bit() {
                 if (lora && role_get() == ROLE_TRC) {
                     printk("Registering Lora Rx callback...\n");
                     lora_recv_async(lora, lora_rx_cb, NULL);
+                    listening = true;
                 }
             } while (false);
 
@@ -199,6 +200,7 @@ void run_bit() {
 
                 // stop rx
                 lora_recv_async(lora, NULL, NULL);
+                listening = false;
                 
                 lora_cfg.tx = true; 
                 int ret = lora_config(lora, &lora_cfg);
@@ -222,6 +224,11 @@ void run_bit() {
                 
                 do_pong = false;
             } while (do_pong);
+
+        if (!do_pong && !listening) {
+            lora_recv_async(lora, lora_rx_cb, NULL);
+            listening = true;
+        }
 
         k_msleep(500);
     }
