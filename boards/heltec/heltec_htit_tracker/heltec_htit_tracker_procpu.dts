@@ -107,7 +107,7 @@
 
 &uart1 {
 	status = "okay";
-	current-speed = <9600>; // default for UC6580
+	current-speed = <115200>; // default for UC6580
 	pinctrl-0 = <&uart1_default>;
 	pinctrl-names = "default";
 };

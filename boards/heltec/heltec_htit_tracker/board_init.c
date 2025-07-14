@@ -27,7 +27,7 @@ static int board_heltec_htit_tracker_init(void) {
     }
 
     gpio_pin_configure(gpio0, VEXT_PIN, GPIO_OUTPUT);
-    gpio_pin_set(gpio0, VEXT_PIN, 0);
+    gpio_pin_set(gpio0, VEXT_PIN, 1);
 
     gpio_pin_configure(gpio0, LED0_NODE, GPIO_OUTPUT);
 
