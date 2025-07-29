@@ -1,10 +1,10 @@
 CWD := $(shell pwd)
 
 fob:
-	west build -b heltec_wifi_lora32_v3/esp32s3/procpu --sysbuild -s app -p auto -- -DBOARD_ROOT=$(CWD)
+	west build -b heltec_wifi_lora32_v3/esp32s3/procpu --sysbuild -s app -p auto -- -DCONFIG_DEVICE_ROLE=1 -DBOARD_ROOT=$(CWD)
 
 trc:
-	west build -b heltec_htit_tracker/esp32s3/procpu --sysbuild -s app -p auto -- -DBOARD_ROOT=$(CWD)
+	west build -b heltec_htit_tracker/esp32s3/procpu --sysbuild -s app -p auto -- -DCONFIG_DEVICE_ROLE=2 -DBOARD_ROOT=$(CWD)
 
 flash:
 	west flash
