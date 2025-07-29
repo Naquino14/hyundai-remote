@@ -15,6 +15,17 @@ mon-fob:
 mon-trc:
 	minicom -D /dev/ttyACM0 -b 115200
 
+mon:
+	@if [ -e /dev/ttyUSB0 ]; then \
+		echo "Using /dev/ttyUSB0"; \
+		minicom -D /dev/ttyUSB0 -b 115200; \
+	elif [ -e /dev/ttyACM0 ]; then \
+		echo "Using /dev/ttyACM0"; \
+		minicom -D /dev/ttyACM0 -b 115200; \
+	else \
+		echo "No serial device found."; \
+	fi
+
 menuconfig:
 	west build -t menuconfig
 
