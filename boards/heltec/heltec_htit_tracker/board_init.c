@@ -11,6 +11,7 @@
 
 #define VEXT_PIN DT_GPIO_PIN(DT_NODELABEL(vext), gpios)
 #define LED0_NODE DT_GPIO_PIN(DT_NODELABEL(led0), gpios)
+#define BLIGHT_NODE DT_GPIO_PIN(DT_NODELABEL(blight), gpios)
 
 #define SW0_NODE DT_ALIAS(sw0)
 static const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
@@ -30,6 +31,8 @@ static int board_heltec_htit_tracker_init(void) {
     gpio_pin_set(gpio0, VEXT_PIN, 1);
 
     gpio_pin_configure(gpio0, LED0_NODE, GPIO_OUTPUT);
+
+    gpio_pin_configure(gpio0, BLIGHT_NODE, GPIO_OUTPUT);
 
     // SW0 setup
     do {

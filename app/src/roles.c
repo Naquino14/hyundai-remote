@@ -2,7 +2,6 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/display/cfb.h>
 
 const char* FOB_STR = "FOB-COMMANDER-XMTR";
 const char* TRC_STR = "TRACK-CONTROL-XPDR";
@@ -29,12 +28,7 @@ static bool init_fob() {
       printk("Display device not ready\n");
       return false;
    }
-
-   int ret = cfb_framebuffer_init(display);
-   if (ret != 0) {
-      printk("Display init failed: %d\n", ret);
-      return false;
-   }
+   
    return true;
 }
 

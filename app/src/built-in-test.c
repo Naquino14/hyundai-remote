@@ -1,13 +1,17 @@
 #include "built-in-test.h"
 #include "roles.h"
 
-#include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/linker/linker-defs.h>
-#include <zephyr/display/cfb.h>
+
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/gnss.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/drivers/lora.h>
+#include <zephyr/drivers/display.h>
+
+#include <lvgl.h>
+#include <lvgl_input_device.h>
 
 static const char* HASHES = "################################";
 
@@ -22,6 +26,8 @@ static struct gpio_callback sw0_cb_data;
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+#define BLIGHT_NODE NULL
+static const struct gpio_dt_spec blight;
 
 #define LORA_NODE DT_NODELABEL(lora0)
 static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
@@ -30,6 +36,8 @@ static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
 #define DISPLAY_NODE DT_NODELABEL(st7735)
 static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+#define BLIGHT_NODE DT_ALIAS(blight)
+static const struct gpio_dt_spec blight = GPIO_DT_SPEC_GET(BLIGHT_NODE, gpios);
 
 #define LORA_MAX_POW_DBM 18 // up to 21±1
 #define LORA_NODE DT_ALIAS(lora0)
@@ -37,37 +45,6 @@ static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
 #endif
 
 LOG_MODULE_REGISTER(bit, LOG_LEVEL_DBG);
-
-static int bit_display_clear() {
-    int ret = cfb_framebuffer_clear(display, true);
-    if (ret != 0) {
-        printk("CFB clear failed: %d\n", ret);
-        return ret;
-    }
-    return 0;
-}
-
-static int bit_display_text(const char* text) {
-    return cfb_print(display, text, 0, 0);
-}
-
-static int bit_display_textxy(const char* text, int x, int y) {
-    int ret = cfb_print(display, text, 0, 0);
-    if (ret != 0) {
-        printk("CFB print failed: %d\n", ret);
-        return ret;
-    }
-    return 0;
-}
-
-static int bit_display_flush() {
-    int ret = cfb_framebuffer_finalize(display);
-    if (ret != 0) {
-        printk("CFB finalize failed: %d\n", ret);
-        return ret;
-    }
-    return 0;
-}
 
 static bool sw0_ok = false;
 static void button_pressed(const struct device* dev, struct gpio_callback *cb, uint32_t pins) {
@@ -96,22 +73,6 @@ void run_bit() {
     const char* startup_text = "Waking up...\n";
 
     int ret;
-    
-    if (display) {
-        // cfb driver
-        if (!device_is_ready(display)) {
-            printk("Display device not ready\n");
-        }
-
-        ret = cfb_framebuffer_init(display);
-        if (ret != 0) {
-            printk("Display init failed: %d\n", ret);
-        }
-
-        bit_display_clear();
-        bit_display_text(startup_text);
-        bit_display_flush();
-    }
 
     if (sw0.port) {
         gpio_init_callback(&sw0_cb_data, button_pressed, BIT(sw0.pin));
@@ -123,6 +84,12 @@ void run_bit() {
     printk("%s\n", startup_text);
     
     k_msleep(2 * 1000);
+    
+    printk("%s\n", HASHES);
+    printk("#      HYUNDAI-REMOTE BIT      #\n");
+    printk("# Board: %-21s #\n", CONFIG_BOARD);
+    printk("# Role: %-22s #\n", role_tostring());
+    printk("%s\n", HASHES);
 
     if (lora) do {
                 if (!device_is_ready(lora)) 
@@ -144,17 +111,29 @@ void run_bit() {
                 }
             } while (false);
 
-    printk("%s\n", HASHES);
-    printk("#      HYUNDAI-REMOTE BIT      #\n");
-    printk("# Board: %-21s #\n", CONFIG_BOARD);
-    printk("# Role: %-22s #\n", role_tostring());
-    printk("%s\n", HASHES);
+    
+    // use graphics library to BIT screen
+    if (display) do {
+                if (!device_is_ready(display)) {
+                    printk("Display device not ready\n");
+                    break;
+                }
 
-    if (display) {
-        bit_display_clear();
-        bit_display_text(*role_tostring() == 'F' ? "ROLE: FOB   PRESS SW0" : "ROLE: TRC   PRESS SW0");
-        bit_display_flush();
-    }
+                display_blanking_off(display);
+
+                if (ROLE_IS_TRC) 
+                    gpio_pin_set_dt(&blight, true);
+
+                printk("Display OK\n");
+
+                // display role on screen
+                lv_obj_t *role_label = lv_label_create(lv_screen_active());
+                char role_label_str[11]; 
+                snprintf(role_label_str, sizeof(role_label_str), "Role: %s", role_get() == ROLE_FOB ? "FOB" : "TRC");
+                lv_label_set_text(role_label, role_label_str);
+                lv_obj_align(role_label, LV_ALIGN_CENTER, 0, 0);
+                lv_timer_handler(); // writes fb to screen?
+            } while (false);
 
     // static bool state = true;
 
@@ -167,9 +146,7 @@ void run_bit() {
         // state = !state;
         if (sw0_ok && sw0.port) {
             sw0_ok = false;
-            bit_display_clear();
-            bit_display_text("SW0 PRESSED");
-            bit_display_flush();
+            // display sw0 pressed on display here eventually
 
             if (lora && role_get() == ROLE_FOB) {
                 // send ping
@@ -188,9 +165,7 @@ void run_bit() {
                     printk("Lora recv failed: %d\n", ret);
                 } else {
                     printk("PONG received: %s, RSSI: %d, SNR: %d\n", data, rssi, snr);
-                    bit_display_clear();
-                    bit_display_text("PONG");
-                    bit_display_flush();
+                    // display pong on display here eventually
                 }
             }
         }

@@ -11,6 +11,9 @@ extern const char* TRC_STR;
 #define DEF_ROLE_TRC 2
 #define DEF_ROLE_UKN 0
 
+#define ROLE_IS_FOB (role_get() == ROLE_FOB)
+#define ROLE_IS_TRC (role_get() == ROLE_TRC)
+
 typedef enum {
    ROLE_FOB = DEF_ROLE_FOB,
    ROLE_TRC = DEF_ROLE_TRC,
