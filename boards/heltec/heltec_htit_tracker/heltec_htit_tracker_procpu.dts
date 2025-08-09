@@ -24,6 +24,7 @@
 		lora0 = &lora0;
 		st7735 = &st7735;
 		vext = &vext;
+		blight = &blight;
 	};
 
 	leds {
@@ -36,6 +37,11 @@
 		vext: vext { 
 			gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>; 
 			label = "External VCC";
+		};
+
+		blight: blight {
+			gpios = <&gpio0 21 GPIO_ACTIVE_HIGH>; 
+			label = "Backlight";
 		};
 	};
 
@@ -64,22 +70,13 @@
 			reg = <0>;
 			width = <160>;
 			height = <80>;
-			x-offset = <0>;
-			y-offset = <0>;
-			// copied values from max32672evkit.dts
-			madctl = <0xc0>;
-			colmod = <0x05>;
-			vmctr1 = <0x51>;
-			pwctr1 = [02 02];
-			pwctr2 = [c5];
-			pwctr3 = [0d 00];
-			pwctr4 = [8d 1a];
-			pwctr5 = [8d ee];
-			frmctr1 = [02 35 36];
-			frmctr2 = [02 35 36];
-			frmctr3 = [02 35 36 02 35 36];
-			gamctrp1 = [0a 1c 0c 14 33 2b 24 28 27 25 2c 39 00 05 03 0d];
-			gamctrn1 = [0a 1c 0c 14 33 2b 24 28 27 25 2d 3a 00 05 03 0d];
+			x-offset = <1>;
+			y-offset = <26>;
+			madctl = <0x76>; 
+			colmod = <0x05>; // color format 16 bits
+			vmctr1 = <0x2c>;
+			gamctrp1 = [02 1c 07 12 37 32 29 2d 29 25 2B 39 00 01 03 10];
+			gamctrn1 = [03 1d 07 06 2E 2C 29 2D 2E 2E 2B 3A 00 01 04 10];
 		};
 	};
 
