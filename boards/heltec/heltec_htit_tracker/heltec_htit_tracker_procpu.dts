@@ -72,7 +72,7 @@
 			height = <80>;
 			x-offset = <1>;
 			y-offset = <26>;
-			madctl = <0x76>; 
+			madctl = <0xB7>; 
 			colmod = <0x05>; // color format 16 bits
 			vmctr1 = <0x2c>;
 			gamctrp1 = [02 1c 07 12 37 32 29 2d 29 25 2B 39 00 01 03 10];
