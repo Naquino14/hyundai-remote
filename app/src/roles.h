@@ -19,30 +19,17 @@ extern const char* TRC_STR;
 #define ROLE_IS_FOB (role_get() == ROLE_FOB)
 #define ROLE_IS_TRC (role_get() == ROLE_TRC)
 
-#define LED0_NODE DT_ALIAS(led0)
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+extern const struct gpio_dt_spec led;
+extern const struct gpio_dt_spec sw0;
 
-#define SW0_NODE DT_ALIAS(sw0)
-static const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
-static struct gpio_callback sw0_cb_data;
-
-#define LORA_NODE DT_NODELABEL(lora0)
-static const struct device *lora = DEVICE_DT_GET(LORA_NODE);
+extern const struct device *lora;
+extern const struct device *display;
+extern const struct gpio_dt_spec blight;
 
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
-#define DISPLAY_NODE DT_NODELABEL(ssd1306)
-static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
-#define BLIGHT_NODE NULL
-static const struct gpio_dt_spec blight;
-
 #define LORA_MAX_POW_DBM 14
 
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
-#define DISPLAY_NODE DT_NODELABEL(st7735)
-static const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
-#define BLIGHT_NODE DT_ALIAS(blight)
-static const struct gpio_dt_spec blight = GPIO_DT_SPEC_GET(BLIGHT_NODE, gpios);
-
 #define LORA_MAX_POW_DBM 18 // up to 21±1
 
 #endif

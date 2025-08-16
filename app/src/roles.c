@@ -3,6 +3,29 @@
 const char *FOB_STR = "FOB-COMMANDER-XMTR";
 const char *TRC_STR = "TRACK-CONTROL-XPDR";
 
+#define LED0_NODE DT_ALIAS(led0)
+const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+
+#define SW0_NODE DT_ALIAS(sw0)
+const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
+
+#define LORA_NODE DT_NODELABEL(lora0)
+const struct device *lora = DEVICE_DT_GET(LORA_NODE);
+
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
+#define DISPLAY_NODE DT_NODELABEL(ssd1306)
+const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+#define BLIGHT_NODE NULL
+const struct gpio_dt_spec blight;
+
+#elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+#define DISPLAY_NODE DT_NODELABEL(st7735)
+const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
+#define BLIGHT_NODE DT_ALIAS(blight)
+const struct gpio_dt_spec blight = GPIO_DT_SPEC_GET(BLIGHT_NODE, gpios);
+
+#endif
+
 static bool init_common()
 {
     printk("Waking up...\n\n");

@@ -50,6 +50,7 @@ void run_bit() {
     int ret;
 
     if (sw0.port) {
+        static struct gpio_callback sw0_cb_data;
         gpio_init_callback(&sw0_cb_data, button_pressed, BIT(sw0.pin));
         ret = gpio_add_callback(sw0.port, &sw0_cb_data);
         if (ret < 0) 
