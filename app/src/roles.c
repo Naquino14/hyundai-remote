@@ -1,5 +1,7 @@
 #include "roles.h"
 
+#include <zephyr/logging/log.h>
+
 const char *FOB_STR = "FOB-COMMANDER-XMTR";
 const char *TRC_STR = "TRACK-CONTROL-XPDR";
 
@@ -26,41 +28,39 @@ const struct gpio_dt_spec blight = GPIO_DT_SPEC_GET(BLIGHT_NODE, gpios);
 
 #endif
 
+LOG_MODULE_REGISTER(roles, LOG_LEVEL_DBG);
+
 static bool init_common()
-{
-    printk("Waking up...\n\n");
-    
-    k_msleep(2 * 1000);
-    
+{ 
     const char *HASHES = "################################";
     printk("%s\n", HASHES);
     printk("#           CFG INIT           #\n");
     printk("%s\n", HASHES);
 
     if (!device_is_ready(led.port)) {
-        printk("LED device is not ready\n");
+        LOG_ERR("LED device is not ready");
         return false;
     }
 
-    printk("LED\t\tRDY\n");
+    LOG_INF("LED\t\tRDY");
     
     if (!device_is_ready(sw0.port)) {
-        printk("User switch device is not ready\n");
+        LOG_ERR("User switch device is not ready");
         return false;
     }
-    printk("User switch\tRDY\n");
+    LOG_INF("User switch\tRDY");
     
     if (!device_is_ready(lora)) {
-        printk("LoRa device is not ready\n");
+        LOG_ERR("LoRa device is not ready");
         return false;
     }
-    printk("LoRa\t\tRDY\n");
+    LOG_INF("LoRa\t\tRDY");
     
     if (!device_is_ready(display)) {
-        printk("Display device is not ready\n");
+        LOG_ERR("Display device is not ready");
         return false;
     }
-    printk("Display\t\tRDY\n");
+    LOG_INF("Display\t\tRDY");
 
     return true;
 }
@@ -79,7 +79,7 @@ bool role_config()
     bool success = init_common();
     if (!success)
     {
-        printk("Role init common failed.");
+        LOG_ERR("Role init common failed.");
         return success;
     }
 
@@ -95,10 +95,10 @@ bool role_config()
         break;
     case ROLE_UKN:
     default:
-        printk("Role init failed: Unknown role.");
+        LOG_ERR("Role init failed: Unknown role.");
         return false;
     }
 
-    printk("Role %s configuration complete.\n", role_tostring());
+    LOG_INF("Role %s configuration complete.", role_tostring());
     return true;
 }
