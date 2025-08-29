@@ -55,6 +55,7 @@ bool bit_led() {
     return true;
 }
 
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
 bool bit_display_st7735(bool wait_sw0)
 {
     int width = DT_PROP(DT_CHOSEN(zephyr_display), width);
@@ -120,7 +121,9 @@ bool bit_display_st7735(bool wait_sw0)
     LOG_INF("Display\t\tOK");
     return true;
 }
+#endif
 
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 bool bit_display_ssd1306(bool wait_sw0) {
     const int width = DT_PROP(DT_CHOSEN(zephyr_display), width);
     const int height = DT_PROP(DT_CHOSEN(zephyr_display), height);
@@ -171,7 +174,16 @@ bool bit_display_ssd1306(bool wait_sw0) {
     LOG_INF("Display\t\tOK");
     return true;
 }
+#endif
 
+bool bit_display(bool wait_sw0) {
+#if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
+    return bit_display_ssd1306(wait_sw0);
+#elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
+    return bit_display_st7735(wait_sw0);
+#endif
+    return false;
+}
 
 bool bit_basic() {
     // run bit on:
@@ -206,16 +218,8 @@ bool bit_basic() {
         return false;
     }
     
-    // if (!bit_display(false))
-    //     return false;
-
-    if (ROLE_IS_FOB && !bit_display_ssd1306(false)) {
-        stop_bit();
+    if (!bit_display(false))
         return false;
-    } else if (ROLE_IS_TRC && !bit_display_st7735(false)) {
-        stop_bit();
-        return false;
-    }
 
     return true;
 }
