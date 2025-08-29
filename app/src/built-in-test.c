@@ -56,7 +56,7 @@ bool bit_led() {
 }
 
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
-bool bit_display_st7735(bool wait_sw0)
+static bool bit_display_st7735(bool wait_sw0)
 {
     int width = DT_PROP(DT_CHOSEN(zephyr_display), width);
     int height = DT_PROP(DT_CHOSEN(zephyr_display), height);
@@ -124,7 +124,7 @@ bool bit_display_st7735(bool wait_sw0)
 #endif
 
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
-bool bit_display_ssd1306(bool wait_sw0) {
+static bool bit_display_ssd1306(bool wait_sw0) {
     const int width = DT_PROP(DT_CHOSEN(zephyr_display), width);
     const int height = DT_PROP(DT_CHOSEN(zephyr_display), height);
 
