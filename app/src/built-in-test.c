@@ -21,7 +21,7 @@ static bool sw0_ok = false;
 static struct gpio_callback sw0_cb_data;
 static void button_pressed(const struct device* dev, struct gpio_callback *cb, uint32_t pins) {
     if (!sw0_ok)
-        LOG_INF("SW0\t\tOK");
+        LOG_INF("User switch\t\tOK");
     k_sem_give(&sw0_sem);
     sw0_ok = true;
 }
