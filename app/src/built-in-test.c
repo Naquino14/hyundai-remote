@@ -362,4 +362,5 @@ void run_bit() {
 
 void stop_bit() {
     gpio_remove_callback(sw0.port, &sw0_cb_data);
+    k_sem_reset(&sw0_sem);
 }
