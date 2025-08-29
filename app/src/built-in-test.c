@@ -55,6 +55,45 @@ bool bit_led() {
     return true;
 }
 
+bool bit_lora(bool call_resp) {
+    lora_cfg.tx = true;
+    char call[] = "PING";
+    if (!call_resp)
+        lora_cfg.tx_power = 2; // 2dbm
+    else
+        lora_cfg.tx_power = LORA_MAX_POW_DBM;
+    
+    int ret = lora_config(lora, &lora_cfg);
+    if (ret < 0) {
+        LOG_ERR("LoRa config failed: %d", ret);
+        return false;
+    }
+
+    ret = lora_send(lora, call, sizeof(call));
+    if (ret < 0) {
+        LOG_ERR("LoRa send failed: %d", ret);
+        return false;
+    }
+
+    if (call_resp) {
+        char resp[] = "PONG";
+        char recv[sizeof(resp)];
+        int16_t rssi;
+        int8_t snr;
+
+        ret = lora_recv(lora, recv, sizeof(recv), K_MSEC(1000), &rssi, &snr);
+        if (ret < 0) {
+            LOG_ERR("LoRa receive failed: %d", ret);
+            return false;
+        }
+
+        LOG_INF("LoRa Pong received. RSSI: %d, SNR: %d", rssi, snr);
+    }
+
+    LOG_INF("LoRa\t\tOK");
+    return true;
+}
+
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
 static bool bit_display_st7735(bool wait_sw0)
 {
@@ -217,10 +256,16 @@ bool bit_basic() {
         stop_bit();
         return false;
     }
+
+    if (!bit_lora(false)) {
+        stop_bit();
+        return false;
+    }
     
     if (!bit_display(false))
         return false;
 
+    LOG_INF("BIT %s complete.", role_tostring());
     return true;
 }
 
