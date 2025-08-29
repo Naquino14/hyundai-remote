@@ -209,7 +209,10 @@ bool bit_basic() {
     // if (!bit_display(false))
     //     return false;
 
-    if (!bit_display_ssd1306(false)) {
+    if (ROLE_IS_FOB && !bit_display_ssd1306(false)) {
+        stop_bit();
+        return false;
+    } else if (ROLE_IS_TRC && !bit_display_st7735(false)) {
         stop_bit();
         return false;
     }
