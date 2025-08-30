@@ -56,11 +56,14 @@ static bool init_common()
     }
     LOG_INF("LoRa\t\tRDY");
     
-    if (!device_is_ready(display)) {
-        LOG_ERR("Display device is not ready");
-        return false;
+
+    if (role_get() != ROLE_FOB) { // display broke on fob board, new one otw
+            if (!device_is_ready(display)) { 
+            LOG_ERR("Display device is not ready");
+            return false;
+        }
+        LOG_INF("Display\t\tRDY");
     }
-    LOG_INF("Display\t\tRDY");
 
     return true;
 }

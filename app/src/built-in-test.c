@@ -217,7 +217,8 @@ static bool bit_display_ssd1306(bool wait_sw0) {
 
 bool bit_display(bool wait_sw0) {
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
-    return bit_display_ssd1306(wait_sw0);
+    // return bit_display_ssd1306(wait_sw0);
+    return true; // I broke the display :( new board otw
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
     return bit_display_st7735(wait_sw0);
 #endif
