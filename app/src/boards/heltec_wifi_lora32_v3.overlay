@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2025 Nate Aquino
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
+/ {
+    aliases {
+        can0 = &can_over_spi;
+    };
+
+    chosen {
+        // esp32s3fn8 TWAI does not support CAN FD
+        // use a spi controller instead, ovewrite chosen
+        zephyr,canbus = &can_over_spi;
+    };
+
+};
+
+&spi3 {
+    can_over_spi: can@0 {
+        status = "okay";
+        reg = <0>; // chip select?
+        compatible = "microchip,mcp2515";
+        osc-freq = <DT_FREQ_M(8)>; 
+        int-gpios = <&gpio1 13 GPIO_ACTIVE_LOW>; // GPIO0 39 == GPIO1 13
+        spi-max-frequency = <DT_FREQ_M(6)>; // might be something else idk
+    };
+};
