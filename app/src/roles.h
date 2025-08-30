@@ -16,6 +16,7 @@ extern const char* TRC_STR;
 #define DEF_ROLE_TRC 2
 #define DEF_ROLE_UKN 0
 
+#define DEF_ROLE_IS_TRC (defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC))
 #define ROLE_IS_FOB (role_get() == ROLE_FOB)
 #define ROLE_IS_TRC (role_get() == ROLE_TRC)
 

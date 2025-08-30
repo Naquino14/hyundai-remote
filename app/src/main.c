@@ -9,15 +9,17 @@
 LOG_MODULE_REGISTER(main);
 
 int main(void) {
+    printk("Waking up...\n\n");
+    
+    k_msleep(2 * 1000);
+
     bool configured = role_config();
     if (!configured) {
         LOG_ERR("ROLE CFG FAIL");
         return 1;
     }
-
     
-    
-    // run_bit();
+    bit_basic();
 
     return 0;
 }
