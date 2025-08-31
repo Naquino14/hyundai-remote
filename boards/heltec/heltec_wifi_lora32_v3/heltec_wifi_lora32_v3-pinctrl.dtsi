@@ -32,6 +32,17 @@
 		};
 	};
 
+	spim2_default: spim2_default {
+		group1 {
+			pinmux = <SPIM2_MISO_GPIO39>,
+					<SPIM2_SCLK_GPIO37>;
+		};
+
+		group2 {
+			pinmux = <SPIM2_MOSI_GPIO38>; // dunno
+		};
+	};
+
 	i2c0_default: i2c0_default {
 		group1 {
 			pinmux = <I2C0_SDA_GPIO17>,

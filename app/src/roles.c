@@ -20,6 +20,9 @@ const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
 #define BLIGHT_NODE NULL
 const struct gpio_dt_spec blight;
 
+#define CAN_NODE DT_CHOSEN(zephyr_canbus) /// @todo MOVE ME INTO 
+static const struct device* can = DEVICE_DT_GET(CAN_NODE);
+
 #elif defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_TRC)
 #define DISPLAY_NODE DT_NODELABEL(st7735)
 const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
@@ -69,6 +72,13 @@ static bool init_common()
 }
 
 static bool init_fob() {
+    // for debugging only
+    if (!device_is_ready(can)) {
+        printk("CAN device is not ready\n");
+        return false;
+    }
+    printk("CAN\t\tRDY\n");
+
     return true;
 }
 

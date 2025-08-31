@@ -125,6 +125,10 @@
     };
 };
 
+&spi2 {
+	status = "disabled";
+};
+
 
 &esp32_bt_hci {
 	status = "okay";
