@@ -1,0 +1,39 @@
+/ {
+    aliases {
+        can0 = &can_over_spi;
+    };
+
+    chosen {
+        zephyr,canbus = &can_over_spi;
+    };
+};
+
+&pinctrl {
+    spim2_default: spim2_default {
+		group1 {
+			pinmux = <SPIM2_MISO_GPIO40>,
+				 <SPIM2_SCLK_GPIO39>;
+		};
+		group2 {
+			pinmux = <SPIM2_MOSI_GPIO41>;
+			output-low;
+		};
+	};
+};
+
+&spi2 {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    status = "okay";
+    pinctrl-0 = <&spim2_default>;
+    pinctrl-names = "default";
+    cs-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>; // GPIO 46 == GPIO1 14
+
+    can_over_spi: can@0 {
+        compatible = "microchip,mcp2515";
+        reg = <0>;
+        osc-freq = <DT_FREQ_M(8)>;
+        int-gpios = <&gpio1 13 GPIO_ACTIVE_LOW>; // GPIO 45 == GPIO1 13
+        spi-max-frequency = <DT_FREQ_M(4)>; // might be wrong, just a guess
+    };
+};
