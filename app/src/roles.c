@@ -14,6 +14,9 @@ const struct gpio_dt_spec sw0 = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
 #define LORA_NODE DT_NODELABEL(lora0)
 const struct device *lora = DEVICE_DT_GET(LORA_NODE);
 
+#define CAN_NODE DT_CHOSEN(zephyr_canbus)
+const struct device *can = DEVICE_DT_GET(CAN_NODE);
+
 #if defined(CONFIG_DEVICE_ROLE) && (CONFIG_DEVICE_ROLE == DEF_ROLE_FOB)
 #define DISPLAY_NODE DT_NODELABEL(ssd1306)
 const struct device *display = DEVICE_DT_GET(DISPLAY_NODE);
@@ -56,11 +59,18 @@ static bool init_common()
     }
     LOG_INF("LoRa\t\tRDY");
     
-    if (!device_is_ready(display)) {
-        LOG_ERR("Display device is not ready");
+    // skip display for now, mine is broken
+    // if (!device_is_ready(display)) {
+    //     LOG_ERR("Display device is not ready");
+    //     return false;
+    // }
+    // LOG_INF("Display\t\tRDY");
+
+    if (!device_is_ready(can)) {
+        LOG_ERR("CAN device is not ready");
         return false;
     }
-    LOG_INF("Display\t\tRDY");
+    LOG_INF("CAN\t\tRDY");
 
     return true;
 }
